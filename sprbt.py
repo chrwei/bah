@@ -20,7 +20,7 @@ class IRCConnector( threading.Thread):
         self.botname = irc['botname']
         self.allmessages = []
         self.lastmessage = datetime.now()
-        self.pulsetime = 1000
+        self.pulsetime = 500
         threading.Thread.__init__ ( self )
 
     def output(self, message):
@@ -58,7 +58,7 @@ class IRCConnector( threading.Thread):
 
             ready = select.select([self.s], [], [], 0.1)
             if ready[0]:
-                line = self.s.recv(250)
+                line = self.s.recv(4096)
                 print line
 
             if line:
