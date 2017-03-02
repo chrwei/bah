@@ -10,14 +10,14 @@ import functions
 import settings
 
 class IRCConnector( threading.Thread):
-    def __init__ (self, host, port):
-        self.host = host
-        self.port = port
-        self.channel = "#stlouis-games"
-        self.identity = "bah"
-        self.realname = "bot against humanity"
-        self.hostname = "emmark.info"
-        self.botname = "bah"
+    def __init__ (self, irc):
+        self.host = irc['host']
+        self.port = irc['port']
+        self.channel = irc['channel']
+        self.identity = irc['identity']
+        self.realname = irc['realname']
+        self.hostname = irc['hostname']
+        self.botname = irc['botname']
         self.allmessages = []
         self.lastmessage = datetime.now()
         self.pulsetime = 500
@@ -139,12 +139,6 @@ class IRCConnector( threading.Thread):
             #print self.allmessages
 
 
-irc_connections = [{
-                        "host": "irc.freenode.net",
-                        "port": 6667,
-                        "channels": ["#stlouis-games"]
-                    }]
-
-for irc in irc_connections:
-    IRCThread = IRCConnector(irc['host'], irc['port'])
+for irc in settings.irc_connections:
+    IRCThread = IRCConnector(irc)
     IRCThread.start()

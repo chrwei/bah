@@ -5,7 +5,6 @@ import cards
 from random import shuffle
 from random import seed
 import settings
-import MySQLdb
 
 def actioner(g, line, username, channel, gamechannel):
 
@@ -260,12 +259,6 @@ def actioner(g, line, username, channel, gamechannel):
 
     elif lower == "quit %s" % (settings.quitpassword):
         exit("Asked to quit by %username")
-    elif lower[:4] == "say ":
-        if username == "bk":
-            messages.append({"message": line[4:], "channel": gamechannel})
-    elif lower[:4] == "act ":
-    	if username == "bk":
-    	    messages.append({"message": "\x01ACTION %s\x01" % line[4:], "channel": gamechannel})
     return messages
 
 def gameLogic(g, line, username, channel, gamechannel):
@@ -375,12 +368,6 @@ def gameLogic(g, line, username, channel, gamechannel):
                     cardText = g.playedCards[cardID]["card"]
                     cardOwner = g.playedCards[cardID]["owner"]
                     messages.append({"message": "The Czar picked %s's card: %s" %(cardOwner.username, cardText), "channel": gamechannel})
-
-                    db = MySQLdb.connect(host="localhost", user="webd", passwd=settings.sqlpassword, db="bah")
-                    cur = db.cursor()
-                    data = (cardOwner.username, g.czar.username, g.blackcard, cardText)
-                    cur.execute("INSERT INTO winners (player, czar, bcard, wcard) values (%s, %s, %s, %s)", data)
-                    db.close()
 
                     cardOwner.score += 1
                     if int(cardOwner.score) == int(g.maxscore):
