@@ -4,6 +4,8 @@ from datetime import timedelta
 import cards
 from random import shuffle
 from random import seed
+import settings
+import MySQLdb
 
 def actioner(g, line, username, channel, gamechannel):
 
@@ -55,6 +57,7 @@ def actioner(g, line, username, channel, gamechannel):
     elif lower == "status":
         if g.inprogress:
             if g.waitPlayers > 0:
+                playerstring = []
                 playernames = []
                 for player in g.players:
                     if player not in g.playedPlayers:
@@ -88,7 +91,7 @@ def actioner(g, line, username, channel, gamechannel):
         else:
             newPlayer = Player(username)
             g.players.append(newPlayer)
-            messages.append({"message": "%s joined the game" %username, "channel": gamechannel})
+            messages.append({"message": "%s joined the game." %username, "channel": gamechannel})
             g.dealCards()
             if g.inprogress:
                 messages += [{"message": g.blackcard, "channel": username}]
@@ -118,24 +121,11 @@ def actioner(g, line, username, channel, gamechannel):
         if message:
             messages += [{"message": message, "channel": gamechannel}]
 
-    elif lower[:5] == "kick ":
-        if username == "res0":
-            message = g.part(lower[5:])
-            if message:
-                messages += [{"message": message, "channel": gamechannel}]
-
-    elif lower == "kickchank":
-        message = g.part("Chank")
-        if message:
-            messages += [{"message": message, "channel": gamechannel}]
-
     elif lower == "czar":
         if g.inprogress:
             messages.append({"message": "The Card Czar is %s" %g.czar.username, "channel": gamechannel})
         else:
             messages.append({"message": "There is no Card Czar yet", "channel": gamechannel})
-    elif lower[:5] == "kill ":
-        messages.append({"message": "DIE %s DIE!" % line[5:].upper(), "channel": gamechannel})
     elif lower == "cards":
         if g.inprogress:
             player = g.getPlayerByName(username)
@@ -267,11 +257,15 @@ def actioner(g, line, username, channel, gamechannel):
     elif lower == "reload":
         reload(cards)
         messages.append({"message": "Reloading card file.", "channel": channel})
-    elif lower == "quit res0n4t0r":
+
+    elif lower == "quit %s" % (settings.quitpassword):
         exit("Asked to quit by %username")
     elif lower[:4] == "say ":
-        if username == "res0":
+        if username == "bk":
             messages.append({"message": line[4:], "channel": gamechannel})
+    elif lower[:4] == "act ":
+    	if username == "bk":
+    	    messages.append({"message": "\x01ACTION %s\x01" % line[4:], "channel": gamechannel})
     return messages
 
 def gameLogic(g, line, username, channel, gamechannel):
@@ -297,7 +291,7 @@ def gameLogic(g, line, username, channel, gamechannel):
         if not g.czar:
             g.czar = g.players[0]
         g.round = g.newround
-        messages.append({"message": "Starting round %s. The Card Czar is %s" %(g.newround, g.czar.username), "channel": gamechannel})
+        messages.append({"message": "Starting round %s. The Card Czar is %s." %(g.newround, g.czar.username), "channel": gamechannel})
         g.dealCards()
         shuffle(g.allbcards)
         blackcard = g.allbcards.pop(0)
@@ -364,7 +358,7 @@ def gameLogic(g, line, username, channel, gamechannel):
         if g.waitCzar == 1:
             seed()
             shuffle(g.playedCards)
-            messages.append({"message": "The Czar, %s, must pick a card" % g.czar.username, "channel": gamechannel})
+            messages.append({"message": "The Czar, %s, must pick a card." % g.czar.username, "channel": gamechannel})
             messages.append({"message": g.blackcard, "channel": gamechannel})
             i = 1
             spacer = "  "
@@ -381,6 +375,13 @@ def gameLogic(g, line, username, channel, gamechannel):
                     cardText = g.playedCards[cardID]["card"]
                     cardOwner = g.playedCards[cardID]["owner"]
                     messages.append({"message": "The Czar picked %s's card: %s" %(cardOwner.username, cardText), "channel": gamechannel})
+
+                    db = MySQLdb.connect(host="localhost", user="webd", passwd=settings.sqlpassword, db="bah")
+                    cur = db.cursor()
+                    data = (cardOwner.username, g.czar.username, g.blackcard, cardText)
+                    cur.execute("INSERT INTO winners (player, czar, bcard, wcard) values (%s, %s, %s, %s)", data)
+                    db.close()
+
                     cardOwner.score += 1
                     if int(cardOwner.score) == int(g.maxscore):
                         messages.append({"message": "%s has won the game!" %(cardOwner.username), "channel": gamechannel})
@@ -484,6 +485,7 @@ class Game():
                     shuffle(self.discardedCards)
                     self.wcards = self.discardedCards
                     self.discardedCards = []
+                shuffle(self.wcards)
                 card = self.wcards.pop()
                 player.hand.append(card)
                 toDeal -= 1
