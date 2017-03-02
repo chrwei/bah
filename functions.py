@@ -419,6 +419,7 @@ class Game():
         self.starttime = None
         self.inchannel = False
         self.minplayers = 3
+        self.currentround = 1
         self.round = 0
         self.newround = 1
         self.played = []
