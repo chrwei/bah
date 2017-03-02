@@ -73,13 +73,16 @@ class IRCConnector( threading.Thread):
                     self.s.send(pong)
 
                 if re.search(":End of /MOTD", line):
-                        joinchannel = "JOIN %s\n" %self.channel
-                        self.output(joinchannel)
-                        messagetosend = "PRIVMSG nickserv :identify %s\n" % (settings.nickservpassword)
-                        self.s.send(messagetosend)
-                        self.s.send(joinchannel)
-                        self.inchannel = True
-
+                    joinchannel = "JOIN %s\n" %self.channel
+                    self.output(joinchannel)
+                    self.s.send(joinchannel)
+                    self.inchannel = True
+                
+                if re.search("This nickname is registered", line):
+                    messagetosend = "PRIVMSG nickserv :identify %s\n" % (settings.nickservpassword)
+                    self.output(messagetosend)
+                    self.s.send(messagetosend)
+                    
                 if re.search("^:.* NICK .*$", line):
                     nicksplit = line.split()
                     oldnickstring = nicksplit[0][1:]
@@ -119,10 +122,10 @@ class IRCConnector( threading.Thread):
                     elif lower == "quit %s" % (settings.quitpassword):
                         exit("Asked to quit by %username")
                     else:
-						if channel == self.botname:
-							self.allmessages.append({"message": "Can't do that here", "channel": username})
-						else:
-							self.allmessages += functions.actioner(g, message, username, channel, self.channel)
+                        if channel == self.botname:
+                            self.allmessages.append({"message": "Can't do that here", "channel": username})
+                        else:
+                            self.allmessages += functions.actioner(g, message, username, channel, self.channel)
 
                 if re.search(":Closing Link:", line):
                     sys.exit()
