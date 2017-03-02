@@ -78,10 +78,10 @@ class IRCConnector( threading.Thread):
                     self.s.send(joinchannel)
                     self.inchannel = True
                 
-                #if re.search("This nickname is registered", line):
-                #    messagetosend = "PRIVMSG nickserv :identify %s\n" % (settings.nickservpassword)
-                #    self.output(messagetosend)
-                #    self.s.send(messagetosend)
+                if re.search("This nickname is registered", line):
+                    messagetosend = "PRIVMSG nickserv :identify %s\n" % (settings.nickservpassword)
+                    self.output(messagetosend)
+                    self.s.send(messagetosend)
                     
                 if re.search("^:.* NICK .*$", line):
                     nicksplit = line.split()
