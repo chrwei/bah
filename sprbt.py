@@ -20,7 +20,7 @@ class IRCConnector( threading.Thread):
         self.botname = irc['botname']
         self.allmessages = []
         self.lastmessage = datetime.now()
-        self.pulsetime = 700
+        self.pulsetime = 1000
         threading.Thread.__init__ ( self )
 
     def output(self, message):
@@ -72,16 +72,16 @@ class IRCConnector( threading.Thread):
                     self.output(pong)
                     self.s.send(pong)
 
-                if re.search("You are now identified", line):
+                if re.search("End of /MOTD", line):
                     joinchannel = "JOIN %s\n" %self.channel
                     self.output(joinchannel)
                     self.s.send(joinchannel)
                     self.inchannel = True
                 
-                if re.search("This nickname is registered", line):
-                    messagetosend = "PRIVMSG nickserv :identify %s\n" % (settings.nickservpassword)
-                    self.output(messagetosend)
-                    self.s.send(messagetosend)
+                #if re.search("This nickname is registered", line):
+                #    messagetosend = "PRIVMSG nickserv :identify %s\n" % (settings.nickservpassword)
+                #    self.output(messagetosend)
+                #    self.s.send(messagetosend)
                     
                 if re.search("^:.* NICK .*$", line):
                     nicksplit = line.split()
