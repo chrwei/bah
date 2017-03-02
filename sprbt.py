@@ -20,7 +20,7 @@ class IRCConnector( threading.Thread):
         self.botname = irc['botname']
         self.allmessages = []
         self.lastmessage = datetime.now()
-        self.pulsetime = 500
+        self.pulsetime = 700
         threading.Thread.__init__ ( self )
 
     def output(self, message):
