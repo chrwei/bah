@@ -72,7 +72,7 @@ class IRCConnector( threading.Thread):
                     self.output(pong)
                     self.s.send(pong)
 
-                if re.search(":End of /MOTD", line):
+                if re.search("You are now identified", line):
                     joinchannel = "JOIN %s\n" %self.channel
                     self.output(joinchannel)
                     self.s.send(joinchannel)
