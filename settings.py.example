@@ -4,9 +4,9 @@ nickservpassword = "nickservpassword"
 irc_connections = [{
                         "host": "irc.freenode.net",
                         "port": 6667,
-                        "channel": "#stlouis-games"
-                        "identity": "cwah"
-                        "realname": "bot against humanity"
-                        "hostname": "nada"
+                        "channel": "#stlouis-games",
+                        "identity": "cwah",
+                        "realname": "bot against humanity",
+                        "hostname": "nada",
                         "botname": "cwah"
                     }]

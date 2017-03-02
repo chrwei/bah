@@ -256,9 +256,6 @@ def actioner(g, line, username, channel, gamechannel):
     elif lower == "reload":
         reload(cards)
         messages.append({"message": "Reloading card file.", "channel": channel})
-
-    elif lower == "quit %s" % (settings.quitpassword):
-        exit("Asked to quit by %username")
     return messages
 
 def gameLogic(g, line, username, channel, gamechannel):

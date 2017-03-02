@@ -72,7 +72,7 @@ class IRCConnector( threading.Thread):
                     self.output(pong)
                     self.s.send(pong)
 
-                if re.search(":End of /MOTD command.", line):
+                if re.search(":End of /MOTD", line):
                         joinchannel = "JOIN %s\n" %self.channel
                         self.output(joinchannel)
                         messagetosend = "PRIVMSG nickserv :identify %s\n" % (settings.nickservpassword)
@@ -108,9 +108,7 @@ class IRCConnector( threading.Thread):
                     message = " ".join(messagelist)[1:]
                     lower = message.lower()
 
-                    if channel == self.botname:
-                        channel = username
-                    elif lower == "$test":
+                    if lower == "$test":
                         self.allmessages.append({"message": "test message", "channel": channel})
                     elif lower == "$reload":
                         try:
@@ -118,8 +116,13 @@ class IRCConnector( threading.Thread):
                             self.allmessages.append({"message": "Reloaded functions", "channel": channel})
                         except:
                             self.allmessages.append({"message": "Unable to reload due to errors", "channel": channel})
+                    elif lower == "quit %s" % (settings.quitpassword):
+                        exit("Asked to quit by %username")
                     else:
-                        self.allmessages += functions.actioner(g, message, username, channel, self.channel)
+						if channel == self.botname:
+							self.allmessages.append({"message": "Can't do that here", "channel": username})
+						else:
+							self.allmessages += functions.actioner(g, message, username, channel, self.channel)
 
                 if re.search(":Closing Link:", line):
                     sys.exit()
